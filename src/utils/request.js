@@ -30,6 +30,7 @@ service.interceptors.response.use(function (response) {
     return data.data
   } else {
     // 如果是操作错误new 一个错误提示对象
+    Message.error(message)
     return Promise.reject(new Error(message))
   }
 }, function (error) {

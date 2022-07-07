@@ -56,8 +56,7 @@
         type="primary"
         style="width: 100%; margin-bottom: 30px"
         @click.native.prevent="handleLogin"
-        >登录</el-button
-      >
+      >登录</el-button>
       <div class="tips">
         <span style="margin-right: 20px">账号: 13800000002</span>
         <span> 密码: 123456</span>
@@ -67,6 +66,7 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 export default {
   name: 'Login',
   data () {
@@ -109,6 +109,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions('user', ['login']),
     showPwd () {
       if (this.passwordType === 'password') {
         this.passwordType = ''
@@ -120,18 +121,22 @@ export default {
       })
     },
     handleLogin () {
-      this.$refs.loginForm.validate(valid => {
+      this.$refs.loginForm.validate(async valid => {
         if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || '/' })
+          //  验证成功之后发请求
+          // 先关loading，无论成功失败都关loading
+          try {
+            this.loading = true
+            await this.login(this.loginForm)
+            // 页面跳转
+            this.$router.push('/')
+          } catch (error) {
+            // 打印错误信息
+            console.log(error)
+          } finally {
+            //  不论执行try 还是catch  都去关闭转圈
             this.loading = false
-          }).catch(() => {
-            this.loading = false
-          })
-        } else {
-          console.log('error submit!!')
-          return false
+          }
         }
       })
     }
