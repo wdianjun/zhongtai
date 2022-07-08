@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
-
+import store from '@/store'
 // create an axios instance
 const service = axios.create({
   // baseURL配置根路径 本机localhost:8888(项目) 向 本机localhost:8888/api发请求（变成了proxy代理服务器）
@@ -9,9 +9,17 @@ const service = axios.create({
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000 // request timeout
 })
+
 // 添加请求拦截器 作用：统一注入token
-service.interceptors.request.use(function (config) {
+service.interceptors.request.use(function (config) { // config配置项，里面有登录时的所有信息
   // 在发送请求之前做些什么
+  // 在发请求之前会调用请求拦截器
+  // 判断是否有token
+  if (store.getters.token) {
+    // 给对象动态添加
+    config.headers['Authorization'] = `Bearer ${store.getters.token}`
+  }
+  // 必须要return config
   return config
 }, function (error) {
   // 对请求错误做些什么
